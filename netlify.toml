@@ -1,0 +1,17 @@
+# Static app + Netlify Edge Functions that call Meta's Muse models.
+# The Meta key goes in Site configuration -> Environment variables as MODEL_API_KEY (never in the repo).
+[build]
+  publish = "."
+  edge_functions = "netlify/edge-functions"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "same-origin"
+    Permissions-Policy = "microphone=(self), camera=(self)"
+
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"
