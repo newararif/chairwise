@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chairwise</title>
+<meta name="description" content="Say what you spent between cuts. Meta AI turns it into tax-ready records for self-employed barbers and stylists.">
+<meta name="theme-color" content="#14231E">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Chairwise">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app" id="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>Chairwise</div>
+    <button class="ai-chip" id="ai-chip" type="button" aria-label="Meta AI status">Checking…</button>
+  </header>
+
+  <main class="screen" id="screen">
+    <section id="home" class="view" aria-label="Home"></section>
+    <section id="ledger" class="view" aria-label="Ledger" hidden></section>
+    <section id="receipts" class="view" aria-label="Receipts" hidden></section>
+    <section id="taxes" class="view" aria-label="Taxes and settings" hidden></section>
+  </main>
+
+  <nav class="dock" aria-label="Main">
+    <button type="button" class="dock-btn" data-go="home" aria-current="page">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.5 12 5l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1z"/></svg>Home</button>
+    <button type="button" class="dock-btn" data-go="ledger">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Ledger</button>
+    <button type="button" class="talk" id="talk" aria-label="Talk: log by voice">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg></button>
+    <button type="button" class="dock-btn" data-go="receipts">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Receipts</button>
+    <button type="button" class="dock-btn" data-go="taxes">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>Taxes</button>
+  </nav>
+
+  <div class="capture" id="capture" hidden role="dialog" aria-modal="true" aria-label="Log by voice"></div>
+  <div class="veil" id="veil" hidden></div>
+  <div class="sheet" id="sheet" hidden role="dialog" aria-modal="true"></div>
+  <div class="toast" id="toast" role="status" aria-live="polite"><span id="toast-text"></span><button type="button" id="toast-action" hidden></button></div>
+</div>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
