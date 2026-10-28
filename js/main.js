@@ -37,7 +37,7 @@ function render() {
   VIEWS.forEach((v) => { $(`#${v}`).hidden = v !== state.view; });
   $$('.dock-btn').forEach((b) => (b.dataset.go === state.view ? b.setAttribute('aria-current', 'page') : b.removeAttribute('aria-current')));
   refreshChip();
-  const actions = { go, talk: () => openCapture(), typeLine: (words) => openCapture({ words }), snapReceipt, loadSample, clearSample, refreshChip, edit: (e) => openEditor(e) };
+  const actions = { go, talk: () => openCapture(), typeLine: (words) => openCapture({ words }), snapReceipt, loadSample, clearSample, refreshChip, edit: (e, opts) => openEditor(e, opts), logIncome: () => openEditor(null, { preset: { type: 'income', category: null } }) };
   ({ home: renderHome, ledger: renderLedger, receipts: renderReceipts, taxes: renderTaxes })[state.view](actions);
 }
 onRender(render);

@@ -16,11 +16,12 @@ export function renderTaxes({ loadSample, clearSample, refreshChip }) {
       <select id="tx-year" aria-label="Tax year" style="border:1px solid var(--rule);background:var(--card);border-radius:10px;padding:7px 10px;font-weight:600">${years.map((y) => `<option${y === state.taxYear ? ' selected' : ''}>${y}</option>`).join('')}</select></div>
     <p class="lede">Schedule C estimate · ${s.count} entries · ${s.withPhoto} with receipt photos</p>
     <div class="card"><table class="sched">
-      <tr><td>1</td><td>Gross receipts<small>Cash and card income you logged</small></td><td>${usd(s.gross)}</td></tr>
+      ${s.gross > 0 ? `<tr><td>1</td><td>Gross receipts<small>Cash and card income you logged</small></td><td>${usd(s.gross)}</td></tr>` : ''}
       ${s.lines.map((l) => `<tr><td>${l.line}</td><td>${esc(l.name)}${l.line === '9' && s.miles ? `<small>${s.miles.toLocaleString()} business miles × 72.5¢</small>` : ''}</td><td>${usd(l.amount)}</td></tr>`).join('')}
       <tr class="total"><td>28</td><td>Total expenses</td><td>${usd(s.total)}</td></tr>
-      <tr><td>31</td><td>Net profit (estimate)</td><td>${usd(s.net)}</td></tr>
-    </table><p class="note" style="margin-top:8px">Meals at 50%. Your accountant makes the final call; this is not tax advice.</p></div>
+      ${s.gross > 0 ? `<tr><td>31</td><td>Net profit (estimate)</td><td>${usd(s.net)}</td></tr>` : ''}
+    </table>
+    ${s.gross > 0 ? '' : '<p class="note" style="margin-top:8px">Income isn\'t tracked here, so your accountant will use your payment app and bank records for Line 1. That\'s fine.</p>'}<p class="note" style="margin-top:8px">Meals at 50%. Your accountant makes the final call; this is not tax advice.</p></div>
 
     <div class="eyebrow">Send to your accountant</div>
     <div class="actions">

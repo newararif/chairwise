@@ -1,11 +1,11 @@
 // Offline support: the app shell is cached; Meta AI calls always go to the network.
-const VERSION = 'chairwise-hack-1';
+const VERSION = 'chairwise-hack-2';
 const SHELL = [
   './', './index.html', './css/app.css', './manifest.webmanifest', './sample-receipt.jpg',
   './js/main.js', './js/ui.js', './js/state.js', './js/store.js', './js/categories.js', './js/ai.js',
   './js/recorder.js', './js/fallback.js', './js/export.js', './js/sample.js',
   './js/views/home.js', './js/views/ledger.js', './js/views/receipts.js', './js/views/taxes.js',
-  './js/views/capture.js', './js/views/editor.js',
+  './js/views/capture.js', './js/views/editor.js', './js/views/statement.js', './sample-statement.png',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'
 ];
 

@@ -6,10 +6,10 @@ import { meta } from '../ai.js';
 export const TRY_LINES = [
   'Spent forty cash on Wahl guards at Sally Beauty and twelve on foils at CosmoProf with my card',
   'Drove 12 miles to Sally Beauty for supplies',
-  'Made four twenty cash today'
+  'Booth rent two seventy five, paid by card'
 ];
 
-export function renderHome({ go, talk, typeLine, snapReceipt, loadSample }) {
+export function renderHome({ go, talk, typeLine, snapReceipt, loadSample, logIncome }) {
   const el = $('#home');
   const year = summarize(inYear(new Date().getFullYear()));
   const month = summarize(inMonth());
@@ -45,13 +45,17 @@ export function renderHome({ go, talk, typeLine, snapReceipt, loadSample }) {
       <button type="button" id="q-talk"><svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21"/></svg><b>Say an expense</b><small>Several at once is fine</small></button>
       <button type="button" id="q-snap"><svg viewBox="0 0 24 24"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6H8l1.5-2h5L16 6h1.5A2.5 2.5 0 0 1 20 8.5v8a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 16.5z"/><circle cx="12" cy="12.5" r="3.3"/></svg><b>Snap a receipt</b><small>${meta.on ? 'Meta AI keeps the business items' : 'Photo goes in your CPA packet'}</small></button>
     </div>
-    <div class="pair">
+    ${year.income > 0 ? `<div class="pair">
       <div class="card stat"><div class="eyebrow">Take-home · ${new Date().toLocaleDateString('en-US', { month: 'long' })}</div><div class="value">${usd0(month.income - month.spent)}</div><div class="hint">${usd0(month.income)} in · ${usd0(month.cash)} of it cash</div></div>
       <div class="card stat"><div class="eyebrow">Set aside</div><div class="value">${usd0(year.seTax)}</div><div class="hint">Self-employment tax on this year's profit</div></div>
-    </div>
+    </div>` : ''}
     ${year.miles ? `<div class="card stat"><div class="eyebrow">Business miles this year</div><div class="value">${year.miles.toLocaleString()} mi</div><div class="hint">Worth ${usd(year.miles * 0.725)} at the 2026 IRS rate of 72.5¢</div></div>` : ''}
     ${top.length ? `<div class="card"><div class="eyebrow">Where it went this year</div><div class="bars">${top.map(([c, v]) => `<div class="bar"><span>${esc(category(c).name)}<em>Line ${category(c).line}</em></span><span class="num">${usd(v)}</span><i><b style="width:${(v / max) * 100}%"></b></i></div>`).join('')}</div></div>` : ''}`;
 
+  if (!year.income) {
+    el.insertAdjacentHTML('beforeend', `<div class="card income-nudge"><div><b>Want to know what to set aside for taxes?</b><p class="note">Optional: log what you make now and then. It also gives you proof of income for an apartment or a loan.</p></div><button type="button" class="btn quiet" id="q-income">+ Log income</button></div>`);
+    $('#q-income', el).onclick = () => logIncome();
+  }
   $('#q-talk', el).onclick = () => talk();
   $('#q-snap', el).onclick = () => snapReceipt();
   const check = $('#check', el);

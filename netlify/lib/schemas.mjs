@@ -68,3 +68,33 @@ export const receiptReading = {
     }
   }
 };
+
+export const statementReading = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['readable', 'bank', 'period', 'headline', 'transactions'],
+  properties: {
+    readable: { type: 'boolean', description: 'false if this is not a legible bank or card statement' },
+    bank: maybe('string', 'Bank or card issuer name'),
+    period: maybe('string', 'Statement period as printed, e.g. "Oct 1 - Oct 31, 2026"'),
+    headline: { type: 'string', description: 'One short sentence for the barber, e.g. "Found 6 likely write-offs and 3 to check."' },
+    transactions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['date', 'merchant', 'printed', 'amount', 'direction', 'business', 'category', 'why'],
+        properties: {
+          date: { type: 'string', description: 'YYYY-MM-DD' },
+          merchant: { type: 'string', description: 'Clean merchant name, e.g. "Sally Beauty"' },
+          printed: { type: 'string', description: 'The description as printed, without any account or card numbers' },
+          amount: { type: 'number', description: 'Positive dollar amount' },
+          direction: { type: 'string', enum: ['debit', 'credit'], description: 'debit = money out, credit = money in or refund' },
+          business: { type: 'string', enum: ['yes', 'maybe', 'no'] },
+          category: { type: 'string', enum: CATEGORY_IDS },
+          why: { type: 'string', description: 'Under 10 words' }
+        }
+      }
+    }
+  }
+};

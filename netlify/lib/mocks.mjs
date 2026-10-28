@@ -29,3 +29,21 @@ export const mockReceipt = {
     { label: 'Energy drinks, 4 pack', price: 5.15, business: false, category: 'other', why: 'Drinks are personal' }
   ]
 };
+
+export const mockStatement = {
+  readable: true, bank: 'Nittany Valley Bank', period: 'Oct 1 - Oct 27, 2026',
+  headline: 'Found 5 likely write-offs and 2 to check.',
+  transactions: [
+    { date: '2026-10-02', merchant: 'Salon Suites', printed: 'SALON SUITES RENT ACH', amount: 275, direction: 'debit', business: 'yes', category: 'rent', why: 'Weekly suite rent' },
+    { date: '2026-10-03', merchant: 'Booksy', printed: 'BOOKSY INC SUBSCRIPTION', amount: 29.99, direction: 'debit', business: 'yes', category: 'software', why: 'Booking app' },
+    { date: '2026-10-06', merchant: 'Sally Beauty', printed: 'SALLY BEAUTY #1234 STATE COLLEGE', amount: 41.37, direction: 'debit', business: 'yes', category: 'supplies', why: 'Barber supplier' },
+    { date: '2026-10-08', merchant: 'Walmart', printed: 'WAL-MART #2286', amount: 60.58, direction: 'debit', business: 'maybe', category: 'supplies', why: 'Mixed store: check the receipt' },
+    { date: '2026-10-10', merchant: 'Square', printed: 'SQUARE FEES OCT', amount: 38.7, direction: 'debit', business: 'yes', category: 'fees', why: 'Card processing fees' },
+    { date: '2026-10-12', merchant: 'Verizon', printed: 'VERIZON WIRELESS', amount: 85, direction: 'debit', business: 'maybe', category: 'phone', why: 'Only the business share counts' },
+    { date: '2026-10-14', merchant: 'Instagram', printed: 'META ADS FACEBK', amount: 15, direction: 'debit', business: 'yes', category: 'advertising', why: 'Promoting your services' },
+    { date: '2026-10-15', merchant: 'Sheetz', printed: 'SHEETZ 0412', amount: 38.2, direction: 'debit', business: 'no', category: 'other', why: 'Log the miles instead' },
+    { date: '2026-10-18', merchant: 'Chipotle', printed: 'CHIPOTLE 1820', amount: 12.45, direction: 'debit', business: 'no', category: 'meals', why: 'Personal meal' },
+    { date: '2026-10-20', merchant: 'Netflix', printed: 'NETFLIX.COM', amount: 15.49, direction: 'debit', business: 'no', category: 'other', why: 'Personal streaming' },
+    { date: '2026-10-24', merchant: 'Square deposit', printed: 'SQUARE INC TRANSFER', amount: 1240, direction: 'credit', business: 'no', category: 'other', why: 'Money in, not an expense' }
+  ]
+};

@@ -3,6 +3,7 @@ import { state, saveEntry, saveReceiptPhoto, rerender } from '../state.js';
 import { category } from '../categories.js';
 import { meta, cleanReceipt } from '../ai.js';
 import { openEditor } from './editor.js';
+import { importStatement } from './statement.js';
 import { fillPhotos } from './ledger.js';
 import { $, $$, esc, usd, openSheet, closeSheet, toast, buzz, today, shiftDays, niceDay, round2, newId, shrinkPhoto, blobToDataURL } from '../ui.js';
 
@@ -14,13 +15,17 @@ export function renderReceipts() {
   const missing = state.entries.filter((e) => e.type === 'expense' && !e.receiptId && e.amount >= 75);
   el.innerHTML = `
     <h2 class="title">Receipts</h2>
-    <p class="lede">Keep a receipt for anything $75 or more, and for equipment.</p>
+    <p class="lede">Snap receipts, or let Meta AI comb through your bank statement. Keep a receipt for anything $75 or more.</p>
     <div class="snap">
       <h3>Snap a receipt</h3>
       <p>${meta.on ? 'Muse Spark reads every line, keeps the shop items and leaves out the personal ones, even on a mixed Walmart run.' : 'Take the photo and type the total. The photo goes into your CPA packet.'}</p>
       <div class="two-btn" style="width:100%"><label class="btn picker">Take photo<input type="file" id="rc-camera" accept="image/*" capture="environment"></label><label class="btn quiet picker">From photos<input type="file" id="rc-library" accept="image/*"></label></div>
       ${meta.on ? '<button type="button" class="btn quiet wide" id="rc-sample">Try a sample receipt</button>' : ''}
     </div>
+    ${meta.on ? `<div class="card statement-card">
+      <div><h3>Bank or card statement</h3><p class="note">Upload a monthly statement as a PDF or screenshot. Muse Spark finds the charges that look like business costs, so nothing slips through. You pick what gets added.</p></div>
+      <div class="two-btn"><label class="btn picker">Upload statement<input type="file" id="st-file" accept="application/pdf,image/*"></label><button type="button" class="btn quiet" id="st-sample">Try a sample</button></div>
+    </div>` : ''}
     ${missing.length ? `<button type="button" class="flagbar" id="rc-missing"><span>${missing.length} purchase${missing.length === 1 ? '' : 's'} of $75+ without a receipt</span><span>Show →</span></button>` : ''}
     ${photos.length ? `<div class="eyebrow">Saved · ${photos.length}</div><div class="grid">${photos.slice(0, 60).map((e) => `<button type="button" data-id="${e.id}" aria-label="${esc(e.payee || 'Receipt')}"><img data-photo="${e.receiptId}" alt=""><span>${esc(e.payee || niceDay(e.date))}</span></button>`).join('')}</div>` : ''}`;
 
@@ -35,6 +40,10 @@ export function renderReceipts() {
   $('#rc-library', el).onchange = (e) => onPick(e.target);
   const sample = $('#rc-sample', el);
   if (sample) sample.onclick = async () => { try { handlePhoto(await (await fetch('sample-receipt.jpg')).blob()); } catch { toast("Couldn't load the sample."); } };
+  const stFile = $('#st-file', el);
+  if (stFile) stFile.onchange = () => { const f = stFile.files?.[0]; stFile.value = ''; if (f) importStatement(f); };
+  const stSample = $('#st-sample', el);
+  if (stSample) stSample.onclick = async () => { try { const b = await (await fetch('sample-statement.png')).blob(); importStatement(new File([b], 'sample-statement.png', { type: 'image/png' })); } catch { toast("Couldn't load the sample."); } };
   const miss = $('#rc-missing', el);
   if (miss) miss.onclick = () => { state.filter = 'expense'; state.view = 'ledger'; rerender(); };
   $$('.grid button', el).forEach((b) => (b.onclick = () => openEditor(state.entries.find((e) => e.id === b.dataset.id))));

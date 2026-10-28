@@ -34,7 +34,8 @@ export const meta = {
 
   hear: (wav) => meta.post('/api/hear', wav, { timeout: 20000, type: 'audio/wav' }),
   understand: (text) => meta.post('/api/understand', { text, today: today() }, { timeout: 20000 }),
-  readReceipt: (dataURL) => meta.post('/api/read-receipt', { image: dataURL, today: today() }, { timeout: 50000 })
+  readReceipt: (dataURL) => meta.post('/api/read-receipt', { image: dataURL, today: today() }, { timeout: 50000 }),
+  readStatement: (dataURL, name) => meta.post('/api/read-statement', { file: dataURL, name, today: today() }, { timeout: 70000 })
 };
 
 const num = (v, max) => (typeof v === 'number' && Number.isFinite(v) && v > 0 && v < max ? v : null);
@@ -76,4 +77,22 @@ export function cleanReceipt(raw) {
     headline: text(raw?.headline, 140),
     lines
   };
+}
+
+/** Check a statement reading before showing it. Only money going out can be a write-off. */
+export function cleanStatement(raw) {
+  const rows = (Array.isArray(raw?.transactions) ? raw.transactions : [])
+    .map((t) => ({
+      date: isISODate(t.date) ? t.date : null,
+      merchant: text(t.merchant, 60) || text(t.printed, 60) || 'Unknown',
+      printed: text(t.printed, 100).replace(/\d{6,}/g, '••••'),
+      amount: num(t.amount, 100000),
+      debit: t.direction !== 'credit',
+      business: ['yes', 'maybe', 'no'].includes(t.business) ? t.business : 'maybe',
+      category: CATEGORIES[t.category] && t.category !== 'mileage' ? t.category : 'other',
+      why: text(t.why, 70)
+    }))
+    .filter((t) => t.amount !== null && t.date && t.debit)
+    .slice(0, 300);
+  return { readable: raw?.readable === true && rows.length > 0, bank: text(raw?.bank, 60), period: text(raw?.period, 60), headline: text(raw?.headline, 140), rows };
 }

@@ -31,9 +31,10 @@ export function summaryHTML(year) {
 <p>${who} · prepared with Chairwise on ${new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</p>
 <p>${s.count} entries, ${s.withPhoto} with receipt photos. Each entry keeps the date, amount, payee, business purpose and the owner's original words.</p>
 <table><thead><tr><th>Line</th><th>Description</th><th class="r">Amount</th></tr></thead><tbody>
-<tr><td>1</td><td>Gross receipts (logged income)</td><td class="r">${usd(s.gross)}</td></tr>
+${s.gross > 0 ? `<tr><td>1</td><td>Gross receipts (logged income)</td><td class="r">${usd(s.gross)}</td></tr>` : ''}
 ${s.lines.map((l) => `<tr><td>${l.line}</td><td>${l.name}${l.line === '9' && s.miles ? ` <small>(${s.miles.toLocaleString()} business miles × $${MILEAGE_RATE})</small>` : ''}</td><td class="r">${usd(l.amount)}</td></tr>`).join('')}
-</tbody><tfoot><tr><td>28</td><td>Total expenses</td><td class="r">${usd(s.total)}</td></tr><tr><td>31</td><td>Net profit (estimate)</td><td class="r">${usd(s.net)}</td></tr></tfoot></table>
+</tbody><tfoot><tr><td>28</td><td>Total expenses</td><td class="r">${usd(s.total)}</td></tr>${s.gross > 0 ? `<tr><td>31</td><td>Net profit (estimate)</td><td class="r">${usd(s.net)}</td></tr>` : ''}</tfoot></table>
+${s.gross > 0 ? '' : '<p>Income was not tracked in Chairwise; use payment-processor and bank records for Line 1.</p>'}
 <p><small>Meals counted at 50%. Mileage at the 2026 IRS standard rate. These are the taxpayer's own records for a tax professional to review; not tax advice.</small></p>`;
 }
 

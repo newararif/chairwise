@@ -18,6 +18,7 @@ function collect() {
   const val = (id) => $(`#${id}`)?.value;
   if (val('ed-amount') !== undefined) draft.amount = val('ed-amount');
   if (val('ed-miles') !== undefined) { const m = parseFloat(val('ed-miles')); draft.miles = m > 0 ? m : null; }
+  if (val('ed-trip-miles') !== undefined) { const m = parseFloat(val('ed-trip-miles')); draft.tripMiles = m > 0 ? m : null; }
   draft.date = val('ed-date') || draft.date;
   for (const [id, key] of [['ed-payee', 'payee'], ['ed-desc', 'description'], ['ed-purpose', 'purpose'], ['ed-cat', 'category']]) {
     if (val(id) !== undefined) draft[key] = val(id).trim();
@@ -28,11 +29,13 @@ async function draw() {
   const d = draft;
   const isTrip = d.type === 'trip', isIncome = d.type === 'income';
   const photo = d.previewURL || (d.receiptId && !d.removePhoto ? await receiptURL(d.receiptId) : null);
-  const heading = `${d.isNew ? 'Add' : 'Fix'} ${isIncome ? 'income' : isTrip ? 'trip' : 'expense'}`;
+  const heading = isIncome ? (d.isNew ? 'Log income' : 'Fix income') : `${d.isNew ? 'Add' : 'Fix'} ${isTrip ? 'miles' : 'expense'}`;
   openSheet(`
     <h3>${heading}</h3>
     ${d.warning ? `<p class="warning">${esc(d.warning)}</p>` : ''}
-    <div class="seg" role="group" aria-label="Kind">${[['expense', 'Expense'], ['trip', 'Miles'], ['income', 'Income']].map(([k, l]) => `<button type="button" data-type="${k}" aria-pressed="${d.type === k}">${l}</button>`).join('')}</div>
+    ${isIncome
+      ? `<p class="note">Optional. Logging what you make lets Chairwise tell you what to set aside for taxes, and gives you proof of income for an apartment or a loan.</p>`
+      : `<div class="seg" role="group" aria-label="Kind">${[['expense', 'Expense'], ['trip', 'Miles']].map(([k, l]) => `<button type="button" data-type="${k}" aria-pressed="${d.type === k}">${l}</button>`).join('')}</div>`}
     <div class="split">
       ${isTrip
         ? `<div class="field"><label for="ed-miles">Business miles</label><input id="ed-miles" class="money-input" inputmode="decimal" value="${d.miles ?? ''}" placeholder="12"></div>`
@@ -42,6 +45,7 @@ async function draw() {
     ${isTrip ? `<p class="note">${d.miles ? `${d.miles} mi × 72.5¢ = <b>$${round2(d.miles * MILEAGE_RATE).toFixed(2)}</b>` : '2026 IRS rate: 72.5¢ a mile.'} Driving from home to your usual shop is commuting and doesn't count.</p>`
       : `<div class="field"><span class="label">Paid with</span><div class="seg" role="group" aria-label="Paid with"><button type="button" data-pay="cash" aria-pressed="${d.payment === 'cash'}">Cash</button><button type="button" data-pay="card" aria-pressed="${d.payment === 'card'}">Card / app</button></div></div>`}
     <div class="field"><label for="ed-payee">${isIncome ? 'From (optional)' : isTrip ? 'Where to' : 'Paid to'}</label><input id="ed-payee" autocomplete="off" value="${esc(d.payee)}" placeholder="${isIncome ? 'Walk-ins, regulars' : 'Sally Beauty'}"></div>
+    ${d.type === 'expense' && d.isNew ? tripBlock(d) : ''}
     <div class="field"><label for="ed-desc">${isIncome ? 'Note' : isTrip ? 'Trip' : 'What for'}</label><input id="ed-desc" autocomplete="off" value="${esc(d.description)}" placeholder="${isIncome ? 'Saturday cuts' : isTrip ? 'Supply run' : 'Clipper guards'}"></div>
     ${d.type === 'expense' ? `<div class="field"><label for="ed-cat">Tax category</label><select id="ed-cat">${Object.entries(CATEGORIES).filter(([k]) => k !== 'mileage').map(([k, c]) => `<option value="${k}"${k === d.category ? ' selected' : ''}>Line ${c.line} · ${esc(c.name)}</option>`).join('')}</select></div>` : ''}
     ${isIncome ? '' : `<div class="field"><label for="ed-purpose">Business purpose</label><input id="ed-purpose" autocomplete="off" value="${esc(d.purpose)}" placeholder="${esc(category(isTrip ? 'mileage' : d.category).purpose)}"></div>`}
@@ -55,6 +59,9 @@ async function draw() {
   $$('[data-type]', sheet).forEach((b) => (b.onclick = () => { collect(); draft.type = b.dataset.type; if (draft.type === 'trip') draft.category = 'mileage'; else if (draft.category === 'mileage') draft.category = 'other'; draw(); }));
   $$('[data-pay]', sheet).forEach((b) => (b.onclick = () => { draft.payment = b.dataset.pay; $$('[data-pay]', sheet).forEach((x) => x.setAttribute('aria-pressed', String(x === b))); }));
   const miles = $('#ed-miles'); if (miles) miles.onchange = () => { collect(); draw(); };
+  const trip = $('#ed-trip'); if (trip) trip.onchange = () => { collect(); draft.tripOn = trip.checked; draw(); if (trip.checked) setTimeout(() => $('#ed-trip-miles')?.focus(), 50); };
+  const tripMiles = $('#ed-trip-miles');
+  if (tripMiles) tripMiles.oninput = () => { const m = parseFloat(tripMiles.value); $('#ed-trip-worth').textContent = m > 0 ? `= $${round2(m * MILEAGE_RATE).toFixed(2)} write-off at 72.5¢ a mile` : '72.5¢ a mile (2026 IRS rate)'; };
   const cat = $('#ed-cat'); if (cat) cat.onchange = () => { draft.category = cat.value; $('#ed-purpose').placeholder = category(cat.value).purpose; };
   const pick = $('#ed-photo');
   if (pick) pick.onchange = async () => {
@@ -88,6 +95,8 @@ async function save() {
     if (!(amount > 0)) return fail('Enter an amount, like 24.99.', '#ed-amount');
   }
   if (!isISODate(d.date)) return fail('Pick a date.', '#ed-date');
+  const addTrip = d.type === 'expense' && d.isNew && d.tripOn;
+  if (addTrip && !(d.tripMiles > 0)) return fail('Enter the miles you drove, like 12. Or untick "Drove there".', '#ed-trip-miles');
 
   const entry = {
     id: d.id, type: d.type, amount: round2(amount), miles: d.type === 'trip' ? d.miles : null,
@@ -103,8 +112,29 @@ async function save() {
   if (d.newPhoto && entry.type === 'expense') entry.receiptId = await saveReceiptPhoto(d.newPhoto);
   const wasNew = d.isNew;
   await saveEntry(entry);
+  if (addTrip) {
+    // The drive is its own entry (IRS mileage log: date, destination, purpose, miles), saved at the same time.
+    const miles = Math.round(d.tripMiles * 10) / 10;
+    await saveEntry({
+      id: newId(), type: 'trip', amount: round2(miles * MILEAGE_RATE), miles,
+      payee: entry.payee, description: entry.payee ? `Trip to ${entry.payee}` : 'Business trip',
+      purpose: entry.description ? `Bought ${entry.description}` : 'Business purchase',
+      payment: null, category: 'mileage', date: entry.date, said: entry.said, how: entry.how, by: null,
+      warning: null, needsCheck: false, receiptId: null, fresh: true
+    });
+  }
   closeSheet(); buzz();
   if (wasNew && state.view === 'home') state.view = 'ledger';
   rerender();
-  toast(wasNew ? 'Saved' : 'Updated');
+  toast(addTrip ? `Saved expense + ${Math.round(d.tripMiles * 10) / 10} mi` : wasNew ? 'Saved' : 'Updated');
+}
+
+function tripBlock(d) {
+  const worth = d.tripMiles > 0 ? `= $${round2(d.tripMiles * MILEAGE_RATE).toFixed(2)} write-off at 72.5¢ a mile` : '72.5¢ a mile (2026 IRS rate)';
+  return `<div class="trip-add${d.tripOn ? ' on' : ''}">
+    <label class="trip-toggle"><input type="checkbox" id="ed-trip" ${d.tripOn ? 'checked' : ''}>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 16V11l2-5h10l2 5v5M5 16h14M5 16v2M19 16v2M3 11h18"/><circle cx="8" cy="13.5" r="1"/><circle cx="16" cy="13.5" r="1"/></svg>
+      <span><b>Drove there for this?</b><small>Add the miles and both get saved together</small></span></label>
+    ${d.tripOn ? `<div class="field"><label for="ed-trip-miles">Business miles (there and back)</label><input id="ed-trip-miles" inputmode="decimal" autocomplete="off" value="${d.tripMiles ?? ''}" placeholder="12"><p class="note" id="ed-trip-worth">${worth}</p></div>` : ''}
+  </div>`;
 }

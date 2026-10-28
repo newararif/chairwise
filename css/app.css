@@ -76,6 +76,12 @@ h2.title { font: 800 30px/1 var(--display); letter-spacing: -.025em; margin: 8px
 .tries button { border: 1px dashed var(--rule); background: transparent; border-radius: 12px; padding: 10px 12px; text-align: left; font-size: 13.5px; }
 .tries button::before { content: "Try: "; color: var(--leaf); font-weight: 700; }
 
+.income-nudge { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.income-nudge b { font-size: 14.5px; }
+.linkish { all: unset; cursor: pointer; font-size: 13.5px; font-weight: 600; color: var(--soft); padding: 6px 4px; }
+.linkish:hover { color: var(--ink); }
+@media (max-width: 420px) { .income-nudge { grid-template-columns: 1fr; } }
+
 /* Ledger rows */
 .chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -16px; padding: 2px 16px; }
 .chips::-webkit-scrollbar { display: none; }
@@ -135,6 +141,15 @@ h2.title { font: 800 30px/1 var(--display); letter-spacing: -.025em; margin: 8px
 .switch input:checked { background: var(--leaf); }
 .switch input:checked::after { transform: translateX(20px); }
 
+/* "Drove there?" option on a new expense */
+.trip-add { border: 1px solid var(--rule); border-radius: 14px; padding: 12px 14px; display: grid; gap: 12px; background: var(--card); }
+.trip-add.on { border-color: var(--leaf); background: color-mix(in srgb, var(--leaf-soft) 45%, var(--card)); }
+.trip-toggle { display: grid; grid-template-columns: 22px 26px 1fr; gap: 10px; align-items: center; cursor: pointer; }
+.trip-toggle input { width: 20px; height: 20px; margin: 0; accent-color: var(--leaf); }
+.trip-toggle svg { width: 24px; height: 24px; fill: none; stroke: var(--leaf); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.trip-toggle b { display: block; font-size: 14.5px; }
+.trip-toggle small { color: var(--soft); font-size: 12.5px; }
+
 /* Receipts */
 .snap { display: grid; gap: 10px; justify-items: center; text-align: center; padding: 24px 18px; border: 2px dashed var(--rule); border-radius: 20px; background: var(--card); }
 .snap h3 { margin: 0; font: 750 20px var(--display); }
@@ -162,6 +177,16 @@ h2.title { font: 800 30px/1 var(--display); letter-spacing: -.025em; margin: 8px
 .line.out b, .line.out .num { color: var(--soft); text-decoration: line-through; }
 .writeoff { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
 .writeoff .num { font: 800 34px/1 var(--display); color: var(--leaf); }
+
+/* Statement import */
+.statement-card { display: grid; gap: 14px; }
+.statement-card h3 { margin: 0 0 4px; font: 750 19px var(--display); }
+.statement-scan { background: var(--card); border: 1px solid var(--rule); }
+.fake-lines { position: absolute; inset: 18px 16px; display: grid; gap: 12px; align-content: start; }
+.fake-lines i { height: 8px; border-radius: 4px; background: var(--sunk); }
+.fake-lines i:nth-child(3n) { width: 70%; }
+.fake-lines i:nth-child(4n) { width: 85%; }
+.line .tags { margin-top: 3px; }
 
 /* Taxes */
 .sched { width: 100%; border-collapse: collapse; font-size: 13.5px; }

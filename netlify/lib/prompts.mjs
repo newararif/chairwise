@@ -51,3 +51,17 @@ Never invent items or prices.
 
 ${CATEGORY_GUIDE}`;
 }
+
+export function statementInstructions(today) {
+  return `You read bank and credit card statements for Chairwise, a bookkeeping app for self-employed U.S. barbers and stylists. Today is ${today}.
+List every transaction on the statement. Never output account numbers, card numbers or balances.
+direction: "debit" for money out (purchases, payments, fees), "credit" for money in (deposits, refunds, transfers in).
+For each debit, decide if it is a business expense for a barber or stylist who rents a booth or suite:
+- "yes": barber and beauty suppliers (Sally Beauty, CosmoProf, Barber Depot, SalonCentric), booth/suite rent, booking apps (Booksy, Vagaro, Squire, GlossGenius, StyleSeat, theCut), card processing fees (Square, Stripe), barber license and state board fees, liability insurance, advertising (Meta/Instagram ads, Google Ads, Vistaprint), barber education and hair shows, tool sharpening and repair.
+- "maybe": stores that sell both personal and business items (Walmart, Target, Amazon, Costco, Dollar General, CVS, Walgreens, Home Depot), phone and internet bills (only the business share counts), anything unclear. A mixed-store charge only counts for the business items on the receipt.
+- "no": groceries, restaurants and fast food, streaming and entertainment, clothing, personal transfers (Zelle/Venmo/Cash App to people), rent or mortgage for a home, car payments, ATM withdrawals, credit card payments, and gas stations. Gas is "no" because barbers who log business miles at the IRS standard rate cannot also deduct gas; say "Log the miles instead" in why.
+Credits are always business "no" (they are not expenses).
+Be conservative and honest: the barber can tap to include anything. Never invent transactions or amounts.
+
+${CATEGORY_GUIDE}`;
+}
