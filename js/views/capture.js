@@ -169,6 +169,9 @@ async function handleWords(said, how, done = []) {
     return;
   }
 
+  // "Bought clippers at Sally's and drove 12 miles": the miles belong to that expense.
+  const buys = ready.filter((e) => e.type === 'expense'), drives = ready.filter((e) => e.type === 'trip');
+  if (buys.length === 1 && drives.length === 1) drives[0].forId = buys[0].id;
   for (const e of ready) await saveEntry(e);
   buzz(18);
   const seconds = ((performance.now() - startedAt) / 1000).toFixed(1);

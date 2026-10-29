@@ -71,9 +71,15 @@ export async function dropReceiptIfUnused(receiptId, exceptEntryId) {
   photoURLs.delete(receiptId);
 }
 
+// Miles that belong to an expense ("drove there for this") live in a linked trip entry.
+export const linkedTrip = (e) => (e?.type === 'expense' ? state.entries.find((t) => t.type === 'trip' && t.forId === e.id) : null);
+export const isLinkedTrip = (t) => t.type === 'trip' && Boolean(t.forId) && state.entries.some((e) => e.id === t.forId);
+
 export async function deleteEntry(id) {
   const entry = state.entries.find((e) => e.id === id);
   if (!entry) return;
+  const trip = linkedTrip(entry);
+  if (trip) { await store.remove('entries', trip.id); state.entries = state.entries.filter((e) => e.id !== trip.id); }
   await dropReceiptIfUnused(entry.receiptId, id);
   await store.remove('entries', id);
   state.entries = state.entries.filter((e) => e.id !== id);

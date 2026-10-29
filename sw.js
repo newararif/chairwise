@@ -1,5 +1,5 @@
 // Offline support: the app shell is cached; Meta AI calls always go to the network.
-const VERSION = 'chairwise-hack-2';
+const VERSION = 'chairwise-hack-3';
 const SHELL = [
   './', './index.html', './css/app.css', './manifest.webmanifest', './sample-receipt.jpg',
   './js/main.js', './js/ui.js', './js/state.js', './js/store.js', './js/categories.js', './js/ai.js',

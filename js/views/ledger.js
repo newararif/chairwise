@@ -1,4 +1,4 @@
-import { state, receiptURL } from '../state.js';
+import { state, receiptURL, linkedTrip, isLinkedTrip } from '../state.js';
 import { category } from '../categories.js';
 import { $, $$, esc, usd, niceDay } from '../ui.js';
 
@@ -10,7 +10,7 @@ const matches = {
   all: () => true,
   check: (e) => e.needsCheck,
   expense: (e) => e.type === 'expense',
-  trip: (e) => e.type === 'trip',
+  trip: (e) => e.type === 'trip' || Boolean(linkedTrip(e)),
   income: (e) => e.type === 'income',
   photo: (e) => Boolean(e.receiptId),
   ai: (e) => e.by === 'Muse Spark'
@@ -22,6 +22,8 @@ export function entryRow(e) {
   const tags = [];
   if (e.needsCheck) tags.push('<span class="tag warn">Check</span>');
   if (e.by === 'Muse Spark') tags.push('<span class="tag ai">Meta AI</span>');
+  const drove = linkedTrip(e);
+  if (drove) tags.push(`<span class="tag ok">+ ${drove.miles} mi · ${usd(drove.amount)}</span>`);
   if (e.how === 'statement') tags.push('<span class="tag">Statement</span>');
   if (e.receiptId) tags.push('<span class="tag ok">Receipt</span>');
   else if (e.type === 'expense' && e.amount >= 75) tags.push('<span class="tag">Add receipt</span>');
@@ -47,16 +49,16 @@ export async function fillPhotos(root) {
 export async function renderLedger({ edit }) {
   const el = $('#ledger');
   const test = matches[state.filter] || matches.all;
-  const list = state.entries.filter(test).sort((a, b) => b.date.localeCompare(a.date) || String(b.createdAt).localeCompare(String(a.createdAt)));
+  const list = state.entries.filter((e) => !isLinkedTrip(e)).filter(test).sort((a, b) => b.date.localeCompare(a.date) || String(b.createdAt).localeCompare(String(a.createdAt)));
   const days = [];
   for (const e of list) { const last = days.at(-1); if (last?.date === e.date) last.items.push(e); else days.push({ date: e.date, items: [e] }); }
 
   el.innerHTML = `
     <div class="row"><h2 class="title">Ledger</h2><div style="display:flex;gap:8px;align-items:center"><button type="button" class="linkish" id="add-income">+ Income</button><button type="button" class="btn quiet" id="add" style="padding:9px 14px;font-size:14px">+ Add expense</button></div></div>
-    <p class="lede">${state.entries.length} entries · tap one to fix it</p>
+    <p class="lede">${((n) => `${n} ${n === 1 ? 'entry' : 'entries'}`)(state.entries.filter((e) => !isLinkedTrip(e)).length)} · tap one to fix it</p>
     <div class="chips" role="group" aria-label="Filter">${FILTERS.filter(([k]) => k !== 'income' || state.entries.some((e) => e.type === 'income')).map(([k, label]) => `<button type="button" class="chip" data-filter="${k}" aria-pressed="${state.filter === k}">${label}</button>`).join('')}</div>
     ${days.length ? days.slice(0, 90).map((d) => {
-      const out = d.items.filter((e) => e.type !== 'income').reduce((a, e) => a + e.amount, 0);
+      const out = d.items.filter((e) => e.type !== 'income').reduce((a, e) => a + e.amount + (linkedTrip(e)?.amount || 0), 0);
       return `<div class="day"><span>${niceDay(d.date)}</span><span class="num">${out ? usd(out) : ''}</span></div><div class="list">${d.items.map(entryRow).join('')}</div>`;
     }).join('') : `<div class="card empty"><h3>${state.entries.length ? 'Nothing here' : 'No entries yet'}</h3><p>${state.entries.length ? 'Try another filter.' : 'Tap the mic and say your first expense.'}</p></div>`}`;
 
