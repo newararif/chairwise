@@ -56,9 +56,17 @@ MOCK_META=1 node tools/serve.mjs                # canned answers, no key
 MOCK_META=1 PORT=8890 node tools/serve.mjs & node tests/e2e.mjs   # tests (needs playwright)
 ```
 
-## Built during the hackathon
+## Built during the hackathon (disclosure)
 
-All code in this repository was written from scratch starting October 27, 2026, during the hackathon window (see the commit history). The idea and customer research come from my earlier work on Chairwise; no code from earlier prototypes was reused.
+**Pre-existing (before Oct 26, 2026):** the Chairwise idea, my customer research on self-employed barbers, and an earlier prototype. **No code, design or assets from that prototype are in this repository.**
+
+**Built during the event:** everything in this repo. The repo and its first commit were created on October 27, 2026; the commit history shows each step.
+
+**What it builds on (all disclosed):**
+- Meta Model API: Muse Spark (`muse-spark-1.3`) and Muse Voice Transcribe (`muse-voice-transcribe-1.0`), the hackathon's provided models
+- Netlify (hosting and Edge Functions)
+- Google Fonts: Bricolage Grotesque, Inter, JetBrains Mono (open source, SIL Open Font License)
+- No third-party code libraries: the app is plain HTML, CSS and JavaScript. Playwright is used only to run the tests.
 
 ## Limits
 
